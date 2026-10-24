@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Topic Scout</title>
+<meta name="description" content="Cited briefs on what the internet is saying about a topic.">
+<meta name="theme-color" content="#0b1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Scout">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="bar">
+  <a href="#/" class="brand"><img src="icons/icon-192.png" alt=""><span>Topic Scout</span></a>
+  <button id="settingsBtn" class="ghost" aria-label="Settings">⚙︎</button>
+</header>
+<main id="view"></main>
+
+<template id="tpl-setup">
+  <section class="card">
+    <h1>Connect</h1>
+    <p class="muted">Enter the app token from your server's <code>.env</code> file. It stays on this phone.</p>
+    <form id="setupForm">
+      <input id="token" type="password" autocomplete="current-password" placeholder="App token" required>
+      <button class="primary" type="submit">Save</button>
+    </form>
+    <p id="setupErr" class="err"></p>
+  </section>
+</template>
+
+<template id="tpl-home">
+  <section class="card">
+    <form id="newForm">
+      <label class="lbl" for="topic">What should I scout?</label>
+      <textarea id="topic" rows="2" maxlength="300" placeholder="e.g. SEBI's new rules for finfluencers" required></textarea>
+      <div class="row">
+        <div class="seg" data-name="depth">
+          <button type="button" data-v="quick">Quick</button>
+          <button type="button" data-v="standard" class="on">Standard</button>
+          <button type="button" data-v="deep">Deep</button>
+        </div>
+        <div class="seg" data-name="window">
+          <button type="button" data-v="7d">7d</button>
+          <button type="button" data-v="30d" class="on">30d</button>
+          <button type="button" data-v="1y">1y</button>
+        </div>
+      </div>
+      <label class="toggle"><input id="reddit" type="checkbox" checked> <span>Include Reddit</span> <small class="muted">without a Reddit API key this takes about 5 / 15 / 35 min for quick / standard / deep</small></label>
+      <details><summary>Extra instructions</summary>
+        <textarea id="notes" rows="2" maxlength="1000" placeholder="e.g. focus on what users complain about"></textarea>
+      </details>
+      <button class="primary" type="submit" id="runBtn">Scout it</button>
+      <p class="muted small" id="estimate"></p>
+    </form>
+  </section>
+  <h2 class="section">History</h2>
+  <ul id="history" class="list"></ul>
+</template>
+
+<template id="tpl-brief">
+  <div class="briefhead">
+    <a href="#/" class="ghost back">‹ Back</a>
+    <div class="actions">
+      <button class="ghost" id="shareBtn">Share</button>
+      <button class="ghost" id="copyBtn">Copy</button>
+      <button class="ghost danger" id="delBtn">Delete</button>
+    </div>
+  </div>
+  <section id="briefBody"></section>
+</template>
+
+<script src="app.js"></script>
+</body>
+</html>
