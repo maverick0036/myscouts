@@ -23,6 +23,18 @@ MODEL = os.environ.get("TOPIC_SCOUT_MODEL", "claude-opus-5-5")
 USE_FALLBACKS = os.environ.get("TOPIC_SCOUT_FALLBACKS", "1") != "0"
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
 
+# Consultancies, report mills and press wires: Topic Scout wants people's voices, not institutional content.
+BLOCKED = [
+    "ey.com", "pwc.com", "pwc.in", "kpmg.com", "deloitte.com", "mckinsey.com", "bcg.com", "bain.com", "accenture.com",
+    "kearney.com", "oliverwyman.com", "rolandberger.com", "gartner.com", "forrester.com", "idc.com", "redseer.com",
+    "capgemini.com", "statista.com", "ibef.org",
+    "marketsandmarkets.com", "grandviewresearch.com", "mordorintelligence.com", "alliedmarketresearch.com", "imarcgroup.com",
+    "researchandmarkets.com", "fortunebusinessinsights.com", "precedenceresearch.com", "expertmarketresearch.com",
+    "custommarketinsights.com", "databridgemarketresearch.com",
+    "prnewswire.com", "businesswire.com", "globenewswire.com", "einpresswire.com", "newswire.com", "prlog.org",
+    "aninews.in", "pressreleasepoint.com",
+]
+
 WINDOWS = {"7d": ("week", 7), "30d": ("month", 30), "1y": ("year", 365)}
 DEPTH = {
     #          effort,   web searches, fetches, reddit queries, threads/query, HN threads
@@ -175,22 +187,22 @@ def hackernews(p, window, depth, log):
     return {"stories": out}
 
 
-# ---------- stage 2c: web research (news, X, long-form, YouTube) ----------
+# ---------- stage 2c: web research (people's voices first; news only for dated facts) ----------
 
 def research(topic, notes, p, window, depth, log):
     d = DEPTH[depth]
     days = WINDOWS[window][1]
     today = datetime.now(timezone.utc).date()
     tools = [
-        {"type": "web_search_20260209", "name": "web_search", "max_uses": d["searches"]},
+        {"type": "web_search_20260209", "name": "web_search", "max_uses": d["searches"], "blocked_domains": BLOCKED},
         {"type": "web_fetch_20260209", "name": "web_fetch", "max_uses": d["fetches"],
-         "max_content_tokens": 12000},
+         "max_content_tokens": 12000, "blocked_domains": BLOCKED},
     ]
     content = (f"Topic: {topic}\nInterpretation: {p.interpretation}\nGeo: {p.geo}\n"
                f"Window: {today - timedelta(days=days)} to {today} (today is {today})\n"
                f"Depth: {depth} (about {d['searches']} searches and {d['fetches']} fetches)\n"
                f"Extra instructions: {notes or 'none'}")
-    log("Web: searching news, X, long-form and YouTube")
+    log("Web: listening to X, Reddit, forums, reviews, blogs and YouTube")
     text, usage = _claude(RESEARCH_SYSTEM, content, d["effort"], tools=tools, log=log)
     log(f"Web: done ({usage['searches']} searches)")
     return text, usage
